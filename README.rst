@@ -53,7 +53,7 @@ The goal of this module is to have a simple interface to do grep-style and
 in-place alterations to files allowing each line to be either completely
 removed or replaced by multiple lines.
 
-Use example:
+Use example::
 
     # For every .txt file in recipes/, replace apple by lemon.
     import geurp
