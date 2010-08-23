@@ -14,8 +14,8 @@ serial device when plugged on a Linux box. It returns a few details about the
 identity of the phone (manufacturer, model, revision and serial number) but
 also the battery level and the signal strength.
 
-psdfontlist
-===========
+psdfontlist.py
+==============
 
 List all the fonts used within a Photosh*p file (PSD). You will need as much
 RAM as possible since the whole file is loaded in memory before being read
@@ -43,4 +43,23 @@ The default for decoding the font names is big endian UTF-16. If you have a
  - send your patch
  - ???
  - profit
+
+geurp.py
+========
+
+Silly module to parse/alter files, grep style.
+
+The goal of this module is to have a simple interface to do grep-style and
+in-place alterations to files allowing each line to be either completely
+removed or replaced by multiple lines.
+
+Use example:
+
+    # For every .txt file in recipes/, replace apple by lemon.
+    import geurp
+
+    def derper(line):
+        return [ line.replace("apple", "lemon") ]
+
+    geurp.derp("recipes/*.txt", derper)
 
