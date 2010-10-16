@@ -4,12 +4,16 @@
 This is typically used in vim where you would copy all the functions of a file
 in your .h file, select them, hit ":" and type: !mkprotos
 
+Another faster way to do it is to go in your header file and hit::
+    :r!mkprotos.py myfile.c
+which will insert directly the prototypes in your header file.
+
 """
 import sys
 import re
 
 # Number of tabs after the type
-ptabs = 3
+ptabs = 2
 
 # Read from stdin or first argument
 if len(sys.argv) > 1:
@@ -62,7 +66,7 @@ for comment, type, name, params in data:
             else:
                 del tokens[-1]
             cparam = " ".join(tokens)
-            if width + len(cparam) >= 53:
+            if width + len(cparam) >= (77 - 8 * ptabs):
                 cparam = "\n\t" + ("\t" * ptabs) + cparam
                 width = 8
 

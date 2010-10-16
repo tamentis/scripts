@@ -6,11 +6,15 @@ This is a collection of scattered scripts that do not need to be packaged
 individually. Feel free to use them and update them, they are all licensed
 under the ISC-License.
 
-mkprotos
-========
+mkprotos.py
+===========
 Create all the prototypes for a bunch of C functions. This is typically used in
 vim where you would copy all the functions of a file in your .h file, select
-them, hit ":" and type: !mkprotos
+them, hit ":" and type: !mkprotos.py
+
+Another faster way to do it is to go in your header file and hit::
+    :r!mkprotos.py myfile.c
+which will insert directly the prototypes in your header file.
 
 Note that all the function with @private in their docstring will not be 
 included in the header.
