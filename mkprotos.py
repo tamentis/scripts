@@ -16,7 +16,7 @@ if len(sys.argv) > 1:
 else:
     fp = sys.stdin
 
-data = re.findall(r"(^/\*\*.+?\*/)?\s+([^\n\t;\{\}=/\*]+\**)\s+([\w_]+)\s?\(([^\n]*?)\)$", fp.read(),
+data = re.findall(r"(/\*\*.+?\*/)?\s+([^\n\t;\{\}=/\*]+\**)\s+([\w_]+)\s?\(([^\)]*?)\)$", fp.read(),
         re.MULTILINE | re.DOTALL)
 
 for group in data:
@@ -37,7 +37,7 @@ for group in data:
     tabs = (ptabs - int(len(type) / 8)) * "\t"
 
     # Parameters
-    params = group[3].split(", ")
+    params = re.split(",\s+", group[3])
     cleaned = []
     width = len(group[2]) + 1
     for param in params:
@@ -48,11 +48,11 @@ for group in data:
         else:
             del tokens[-1]
         cparam = " ".join(tokens)
-        if width + len(cparam) >= 50:
+        if width + len(cparam) >= 53:
             cparam = "\n\t" + ("\t" * ptabs) + cparam
             width = 8
-        else:
-            width += len(cparam) + 2
+
+        width += len(cparam) + 2
         cleaned.append(cparam)
 
     print("%s%s%s%s(%s);" % (type, tabs, ptr, group[2], ", ".join(cleaned)))
