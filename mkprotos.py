@@ -1,5 +1,5 @@
-#!/usr/bin/env python3
-"""Create prototypes for all the function dumped on stdin.
+#!/usr/bin/python
+"""Create prototypes for all the C functions dumped on stdin.
 
 This is typically used in vim where you would copy all the functions of a file
 in your .h file, select them, hit ":" and type: !mkprotos
@@ -11,21 +11,30 @@ import re
 # Number of tabs after the type
 ptabs = 3
 
+# Read from stdin or first argument
 if len(sys.argv) > 1:
     fp = open(sys.argv[1])
 else:
     fp = sys.stdin
 
-data = re.findall(r"(/\*\*.+?\*/)?\s+([^\n\t;\{\}=/\*]+\**)\s+([\w_]+)\s?\(([^\)]*?)\)$", fp.read(),
-        re.MULTILINE | re.DOTALL)
+# Find all the function definitions
+data = re.findall(r"""
+    (/\*\*.+?\*/)?          # First group, the comment block
+    \s+                     # Newline, crumbs...
+    ([^\n\t;\{\}=/\*]+\**)  # Second group, the type
+    \s+                     # Newline, crumbs...
+    ([\w_]+)                # Third group, function name
+    \s?                     # Optional space between function name and params
+    \(                      # Start of the params
+    ([^\)]*?)               # Fourth group, actual params on multiple lines
+    \)$                     # End of the params
+    """, fp.read(), re.MULTILINE | re.DOTALL | re.VERBOSE)
 
-for group in data:
-    # Doctype
-    if "@private" in group[0]:
+for comment, type, name, params in data:
+    if "@private" in comment:
         continue
 
     # Handle the type
-    type = group[1]
     ptr = ""
     while type.endswith("*"):
         ptr += "*"
@@ -36,24 +45,29 @@ for group in data:
     # Number of tabs after the type
     tabs = (ptabs - int(len(type) / 8)) * "\t"
 
-    # Parameters
-    params = re.split(",\s+", group[3])
-    cleaned = []
-    width = len(group[2]) + 1
-    for param in params:
-        tokens = param.split(" ")
-        varname = tokens[-1]
-        if varname.startswith("*"):
-            tokens[-1] = "*"
-        else:
-            del tokens[-1]
-        cparam = " ".join(tokens)
-        if width + len(cparam) >= 53:
-            cparam = "\n\t" + ("\t" * ptabs) + cparam
-            width = 8
+    # Parameters, split them with the commas, remove all the actual variable
+    # names to keep only the types.
+    if not params:
+        params = "void"
+    else:
+        params = re.split("\s*,\s+", params)
+        cleaned = []
+        width = len(name) + 1
+        for param in params:
+            tokens = param.split(" ")
+            varname = tokens[-1]
+            if varname.startswith("*"):
+                tokens[-1] = "*"
+            else:
+                del tokens[-1]
+            cparam = " ".join(tokens)
+            if width + len(cparam) >= 53:
+                cparam = "\n\t" + ("\t" * ptabs) + cparam
+                width = 8
 
-        width += len(cparam) + 2
-        cleaned.append(cparam)
+            width += len(cparam) + 2
+            cleaned.append(cparam)
+        params = ", ".join(cleaned)
 
-    print("%s%s%s%s(%s);" % (type, tabs, ptr, group[2], ", ".join(cleaned)))
+    print("%s%s%s%s(%s);" % (type, tabs, ptr, name, params))
 
