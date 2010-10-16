@@ -31,7 +31,8 @@ data = re.findall(r"""
     """, fp.read(), re.MULTILINE | re.DOTALL | re.VERBOSE)
 
 for comment, type, name, params in data:
-    if "@private" in comment:
+    # Ignore @private and static functions
+    if "@private" in comment or "static" in type:
         continue
 
     # Handle the type
