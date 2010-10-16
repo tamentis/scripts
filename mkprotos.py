@@ -50,5 +50,5 @@ for group in data:
             width += len(cparam) + 2
         cleaned.append(cparam)
 
-    print("%s%s%s%s(%s);" % (group[0], tabs, ptr, group[1], ", ".join(cleaned)))
+    print("%s%s%s%s(%s);" % (type, tabs, ptr, group[1], ", ".join(cleaned)))
 
