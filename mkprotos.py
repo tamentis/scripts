@@ -16,11 +16,16 @@ if len(sys.argv) > 1:
 else:
     fp = sys.stdin
 
-data = re.findall(r"^(.*)\n([\w_]+)\((.*)\)", fp.read(), re.MULTILINE)
+data = re.findall(r"(^/\*\*.+?\*/)?\s+([^\n\t;\{\}=/\*]+\**)\s+([\w_]+)\s?\(([^\n]*?)\)$", fp.read(),
+        re.MULTILINE | re.DOTALL)
 
 for group in data:
+    # Doctype
+    if "@private" in group[0]:
+        continue
+
     # Handle the type
-    type = group[0]
+    type = group[1]
     ptr = ""
     while type.endswith("*"):
         ptr += "*"
@@ -29,12 +34,12 @@ for group in data:
         ptr = " "
 
     # Number of tabs after the type
-    tabs = (ptabs - int(len(group[0]) / 8)) * "\t"
+    tabs = (ptabs - int(len(type) / 8)) * "\t"
 
     # Parameters
-    params = group[2].split(", ")
+    params = group[3].split(", ")
     cleaned = []
-    width = len(group[1]) + 1
+    width = len(group[2]) + 1
     for param in params:
         tokens = param.split(" ")
         varname = tokens[-1]
@@ -50,5 +55,5 @@ for group in data:
             width += len(cparam) + 2
         cleaned.append(cparam)
 
-    print("%s%s%s%s(%s);" % (type, tabs, ptr, group[1], ", ".join(cleaned)))
+    print("%s%s%s%s(%s);" % (type, tabs, ptr, group[2], ", ".join(cleaned)))
 

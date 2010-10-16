@@ -12,6 +12,9 @@ Create all the prototypes for a bunch of C functions. This is typically used in
 vim where you would copy all the functions of a file in your .h file, select
 them, hit ":" and type: !mkprotos
 
+Note that all the function with @private in their docstring will not be 
+included in the header.
+
 fusic.py
 ========
 
