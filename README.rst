@@ -6,6 +6,12 @@ This is a collection of scattered scripts that do not need to be packaged
 individually. Feel free to use them and update them, they are all licensed
 under the ISC-License.
 
+mkprotos
+========
+Create all the prototypes for a bunch of C functions. This is typically used in
+vim where you would copy all the functions of a file in your .h file, select
+them, hit ":" and type: !mkprotos
+
 fusic.py
 ========
 
