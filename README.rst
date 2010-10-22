@@ -27,6 +27,21 @@ serial device when plugged on a Linux box. It returns a few details about the
 identity of the phone (manufacturer, model, revision and serial number) but
 also the battery level and the signal strength.
 
+litter.py
+=========
+
+Keep track of when the cat's litter was done using ~/.litterrc as a JSON list.
+
+Example::
+
+    $ litter.py
+    Last changed 4 days 3 hours 44 minutes ago
+
+    $ litter.py now
+    Who (default: LastPerson): 
+    Type (default: Random Brand): 
+    Next change on Wednesday October 27
+
 psdfontlist.py
 ==============
 
