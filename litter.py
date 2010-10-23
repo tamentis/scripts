@@ -16,7 +16,7 @@ import re
 
 now = datetime.datetime.now()
 date_format = "%Y-%m-%d %H:%M:%S"
-config_file = os.path.expanduser(".litterrc")
+config_file = os.path.expanduser("~/.litterrc")
 
 
 def get_since_datetime(dt):
