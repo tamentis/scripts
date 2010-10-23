@@ -28,7 +28,6 @@ def get_since_datetime(dt):
         seconds += delta.days * 24 * 3600
 
     delta = seconds
-    print(delta)
 
     if delta >= 172800:
         output += "%d days " % math.floor(delta / 86400.0)
