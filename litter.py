@@ -18,10 +18,13 @@ from __future__ import with_statement
 import os.path
 import datetime
 import math
-import simplejson as json
 import sys
 import re
 
+try:
+    import json
+except:
+    import simplejson as json
 
 max_days = 5
 now = datetime.datetime.now()
