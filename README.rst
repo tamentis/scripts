@@ -91,3 +91,15 @@ Use example::
 
     geurp.derp("recipes/*.txt", derper)
 
+playrar.sh
+==========
+
+This script is used to play a movie out of a series of RAR files. This is
+particularily useful when downloading a movie in the right order since it
+allows you to start watching the movie almost as soon as you start your
+download.
+
+Usage example::
+
+    playrar random_movie.part01.rar
+
