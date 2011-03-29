@@ -6,6 +6,14 @@ This is a collection of scattered scripts that do not need to be packaged
 individually. Feel free to use them and update them, they are all licensed
 under the ISC-License.
 
+mplayer-remote.py
+=================
+Control a movie remotely. This little script spawns a web server on the machine
+with mplayer and gives a few controls to any machine connecting to this server.
+You need to pass the filename of the movie you intend to play as only parameter::
+
+    mplayer-remote.py my-movie.avi
+
 mkprotos.py
 ===========
 Create all the prototypes for a bunch of C functions. This is typically used in
