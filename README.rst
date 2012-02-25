@@ -6,6 +6,26 @@ This is a collection of scattered scripts that do not need to be packaged
 individually. Feel free to use them and update them, they are all licensed
 under the ISC-License.
 
+flac2mp3
+========
+Convert flac files to mp3s.
+
+::
+
+	USAGE
+
+	    flac2mp3 list | flac2mp3 convert
+
+	COMMANDS
+
+	    list      List flacs in the current folder and their respective converted
+	              mp3 equivalent, with cleaned up filename, both source and target
+	              filename are separated by a TAB character.
+
+	    convert   Read a list of filename pairs, the first item of each pair is a
+	              flac file, the second the target mp3 file, separated by a TAB.
+
+
 mplayer-remote.py
 =================
 Control a movie remotely. This little script spawns a web server on the machine

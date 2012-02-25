@@ -1,0 +1,60 @@
+#!/bin/sh
+
+help() {
+	cat <<-EOF
+	flac2mp3 - convert flacs to mp3s
+
+	USAGE
+
+	    flac2mp3 list | flac2mp3 convert
+
+	COMMANDS
+
+	    list      List flacs in the current folder and their respective converted
+	              mp3 equivalent, with cleaned up filename, both source and target
+	              filename are separated by a TAB character.
+
+	    convert   Read a list of filename pairs, the first item of each pair is a
+	              flac file, the second the target mp3 file, separated by a TAB.
+
+	EOF
+}
+
+# $1 - filename
+clean_filename() {
+	echo $1 | tr 'A-Z' 'a-z' \
+		| tr -c 'a-z0-9.\n/' '_' \
+		| sed 's/....$/mp3/'
+}
+
+
+if ! flac --version 1>/dev/null 2>/dev/null; then
+	echo "error: flac not found"
+	exit 100
+fi
+
+if ! which lame 1>/dev/null 2>/dev/null; then
+	echo "error: lame not found"
+	exit 100
+fi
+
+
+case $1 in
+	list)
+		find . -maxdepth 1 -iname "*.flac" -print | while read file; do
+			target=`clean_filename "$file"`
+			echo "$file\t$target"
+		done
+		;;
+	convert)
+		while read line; do
+			source=`echo "$line" | cut -f 1`
+			target=`echo "$line" | cut -f 2`
+			flac -scd "$source" | lame --preset extreme --quiet - "$target"
+		done
+		;;
+	*)
+		help
+		exit 100
+esac
+
