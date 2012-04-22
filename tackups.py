@@ -5,10 +5,9 @@ Simplistic backup system wrapping gnupg, gzip, cpio, find and Amazon S3.
 
 The whole point of this tool is to simplify the storage format and avoid the
 need for extra tools to restore from backups. All you need to restore an
-archive is:
+archive is::
 
-- download the file(s)
-- gpg -d $file | gzip | cpio -id
+    gpg -d $file | gzip | cpio -id
 
 "Incremental" backups are handled manually, in most cases, this can be done by
 simply specifying partial backups based on find rules, for example, backing up
@@ -54,6 +53,11 @@ Here is an example configuration file (YAML)::
                 - "projects"
                 - "mail"
 
+Here is an example of the usage in a crontab(5)::
+
+    @hourly tackups.py /etc/tackups.conf hourly
+    @daily tackups.py /etc/tackups.conf daily
+    @weekly tackups.py /etc/tackups.conf weekly
 """
 
 import os

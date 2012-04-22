@@ -41,8 +41,10 @@ vim where you would copy all the functions of a file in your .h file, select
 them, hit ":" and type: !mkprotos.py
 
 Another faster way to do it is to go in your header file and hit::
+
     :r!mkprotos.py myfile.c
-which will insert directly the prototypes in your header file.
+
+This will insert directly the prototypes in your header file.
 
 Note that all the function with @private in their docstring will not be 
 included in the header.
@@ -58,7 +60,8 @@ also the battery level and the signal strength.
 litter.py
 =========
 
-Keep track of when the cat's litter was done using ~/.litterrc as a JSON list.
+Keep track of when the cat's litter was done using ``~/.litterrc`` as a JSON
+list, this was written to be displayed on a small LCD display in my cat's area.
 
 Example::
 
@@ -73,10 +76,9 @@ Example::
 psdfontlist.py
 ==============
 
-List all the fonts used within a Photosh*p file (PSD). You will need as much
-RAM as possible since the whole file is loaded in memory before being read
-byte by byte. I know this is not pretty, it is not meant to be, it works for
-me (TM).
+List all the fonts used within a Photosh*p file (PSD). You will need enough RAM
+to load the entire file in memory. I know this is not pretty, it is not meant
+to be, it works for me (TM).
 
 If a font is used multiple times, it will only be listed once. The only two
 working options are::
@@ -137,10 +139,9 @@ Simplistic backup system wrapping gnupg, gzip, cpio, find and Amazon S3.
 
 The whole point of this tool is to simplify the storage format and avoid the
 need for extra tools to restore from backups. All you need to restore an
-archive is:
+archive is::
 
-- download the file(s)
-- gpg -d $file | gzip | cpio -id
+    gpg -d $file | gzip | cpio -id
 
 "Incremental" backups are handled manually, in most cases, this can be done by
 simply specifying partial backups based on find rules, for example, backing up
@@ -185,4 +186,10 @@ Here is an example configuration file (YAML)::
             include:
                 - "projects"
                 - "mail"
+
+Here is an example of the usage in a ``crontab(5)``::
+
+    @hourly tackups.py /etc/tackups.conf hourly
+    @daily tackups.py /etc/tackups.conf daily
+    @weekly tackups.py /etc/tackups.conf weekly
 
