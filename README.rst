@@ -131,3 +131,58 @@ Usage example::
 
     playrar random_movie.part01.rar
 
+tackups.py
+==========
+Simplistic backup system wrapping gnupg, gzip, cpio, find and Amazon S3.
+
+The whole point of this tool is to simplify the storage format and avoid the
+need for extra tools to restore from backups. All you need to restore an
+archive is:
+
+- download the file(s)
+- gpg -d $file | gzip | cpio -id
+
+"Incremental" backups are handled manually, in most cases, this can be done by
+simply specifying partial backups based on find rules, for example, backing up
+a folder of Maildir folders:
+
+- hourly saving only the last 24H of inbox/ and sent/
+- daily saving everything except archived folders
+- weekly saving everything.
+
+This script assumes the AWS keys are stored in the configuration file, the
+reason for this choice is simple, you should setup a user for each machine (or
+class of machine) and only give "PutObject" rights to this user, the global
+AWS_ variables are typically user specific, not task specific.
+
+Here is an example configuration file (YAML)::
+
+    aws_access_key_id:      "AK.................."
+    aws_secret_access_key:  "........................................"
+
+    gpg_recipient:          "6453194A"
+
+    target_bucket_name:     "backups.hostname.tamentis.com"
+
+    periods:
+        hourly:
+            include:
+                - "mail/inbox"
+                - "mail/sent"
+                - "mail/work/inbox"
+                - "mail/work/sent"
+            include_options:
+                ctime: 1
+
+        daily:
+            include:
+                - "projects"
+                - "mail"
+            exclude:
+                - "^mail/archives"
+
+        weekly:
+            include:
+                - "projects"
+                - "mail"
+
