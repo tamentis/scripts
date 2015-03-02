@@ -63,7 +63,6 @@ Here is an example of the usage in a crontab(5)::
 import os
 import sys
 import argparse
-from datetime import datetime
 
 import yaml
 from boto.s3.connection import S3Connection
