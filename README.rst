@@ -25,6 +25,23 @@ Convert flac files to mp3s.
 	    convert   Read a list of filename pairs, the first item of each pair is a
 	              flac file, the second the target mp3 file, separated by a TAB.
 
+finddupes
+=========
+Find duplicate file in directories.
+
+::
+
+    NAME
+        finddupes - find duplicates in the given directories
+
+    SYNOPSIS
+        finddupes [-m] dir ...
+
+    DESCRIPTION
+        finddupes will return the list of all the files that are identically
+        named in the provided directories.  This tool is recursive and will find
+        duplicates files in any level of nesting.  If the -m option is provided,
+        the md5 checksum will be used for comparison instead of the filename.
 
 mplayer-remote.py
 =================

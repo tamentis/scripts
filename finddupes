@@ -1,0 +1,74 @@
+#!/bin/sh
+#
+# NAME
+#      finddupes - find duplicates in the given directories
+#
+# SYNOPSIS
+#      finddupes [-m] dir ...
+#
+# DESCRIPTION
+#      finddupes will return the list of all the files that are identically
+#      named in the provided directories.  This tool is recursive and will find
+#      duplicates files in any level of nesting.  If the -m option is provided,
+#      the md5 checksum will be used for comparison instead of the filename.
+#
+
+usage() {
+	echo "usage: finddupes [-m] dir ..."
+	exit 1
+}
+
+
+args=`getopt m $*`
+set -- $args
+while [ $# -ne 0 ]; do
+	case "$1" in
+	-m)
+		use_checksum="true"; shift;;
+	--)
+		shift; break;;
+	esac
+done
+
+if [ $# -eq 0 ]; then
+	usage
+fi
+
+# Create a list that is structured around two pipe-separated values.  The first
+# is the full path of the file and the second is the item use to identify
+# uniqueness.
+list=`mktemp`
+while [ -n "$1" ]; do
+	dir=$1
+	if [ "$use_checksum" = true ]; then
+		find "$dir" -type f -exec md5 {} \; \
+			| sed 's/^MD5 (//' \
+			| sed 's/) = /|/' \
+			>> "$list"
+	else
+		find "$dir" -type f \
+			| while read filepath; do
+				echo "$filepath|${filepath##*/}"
+			done \
+			>> "$list"
+	fi
+	shift
+done
+
+# Create the list of dupe from the identifiers.
+dupe_ids=`mktemp`
+cut -d'|' -f 2 "$list" \
+	| sort \
+	| uniq -c \
+	| sort -n \
+	| grep -v '^ *1 ' \
+	| awk '{ print $2 }' \
+	| sed 's/^/|/;s/$/$/' \
+	> "$dupe_ids"
+
+# List all the files that match these dupe IDs.
+grep -f "$dupe_ids" "$list" \
+	| sort -t '|' -k 2 \
+	| awk -F '|' '{ print $2 ":", $1 }'
+
+rm "$list" "$dupe_ids"
