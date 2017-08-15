@@ -1,0 +1,3 @@
+#!/bin/sh
+
+hg-step -0.2

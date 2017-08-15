@@ -1,0 +1,13 @@
+#!/bin/sh
+
+if [ -z "$1" ]; then
+	echo "usage: hg-close branch"
+	exit 1
+fi
+
+target_branch=$1
+current_branch=`hg branch`
+
+hg update -c $target_branch
+hg commit -m "Closing" --close-branch
+hg update -c $current_branch

@@ -1,0 +1,8 @@
+#!/bin/sh
+
+current_branch=`hg $@ branch`
+current_version=`echo $current_branch | sed 's/.*-//g'`
+prev_version=`echo $current_version - 0.1 | bc`
+prev_branch="${current_branch%%$current_version}${prev_version}"
+
+hg $@ merge $prev_branch

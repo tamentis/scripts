@@ -1,0 +1,14 @@
+#!/bin/sh
+
+if [ -z "$1" ]; then
+	echo "usage: hg-jump version"
+	exit 1
+fi
+
+version=$1
+
+current_branch=`hg branch`
+current_version=`echo $current_branch | sed 's/.*-//g'`
+next_branch="${current_branch%%$current_version}${version}"
+
+hg update -c $next_branch

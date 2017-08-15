@@ -1,0 +1,14 @@
+#!/bin/sh -e
+
+if [ -z "$1" ]; then
+	echo "usage: hgstep step"
+	exit -1
+fi
+
+step=$1
+
+current_branch=`hg branch`
+current_version=`echo $current_branch | sed 's/.*-//g'`
+next_version=`echo $current_version + $step | bc`
+
+hg-jump $next_version

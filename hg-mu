@@ -1,0 +1,19 @@
+#!/bin/sh
+#
+# Merge your changes up. Ready to push.
+#
+
+# $1 - error message
+die() {
+	echo "error: $1"
+	exit 1
+}
+
+current=`hg branch` || die "can't get current branch"
+
+while hg++ 1>/dev/null 2>/dev/null; do
+	hg-mp || die "can't merge from previous branch"
+	hg commit -m "Merge" || die "failed to commit the merge"
+done
+
+hg update "$current"
