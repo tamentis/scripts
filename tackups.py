@@ -63,7 +63,6 @@ Here is an example of the usage in a crontab(5)::
 import os
 import sys
 import argparse
-from datetime import datetime
 
 import yaml
 from boto.s3.connection import S3Connection
@@ -151,14 +150,15 @@ def parse_options():
 
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument("config_file", type=argparse.FileType("r"),
+    parser.add_argument("-c", "--config", default="~/.tackups.conf",
                         help="where to find the config and period definitions")
     parser.add_argument("period", help="period definition in the config file")
     parser.add_argument("-v", dest="verbose", action="store_true",
                         default=False, help="verbose")
     args = parser.parse_args()
 
-    config = yaml.safe_load(args.config_file)
+    with open(os.path.expanduser(args.config)) as fp:
+        config = yaml.safe_load(fp)
 
     if args.period not in config["periods"]:
         print("error: unknown period '{}'".format(args.period))
@@ -167,12 +167,7 @@ def parse_options():
     return args.verbose, args.period, config
 
 
-# Extract options from the command line.
 verbose, period, config = parse_options()
-
-# Run GnuPG, Gzip, etc. and create a backup file.
 filename = create_file(period)
-
-# Save the file to an S3 key.
 upload(filename, config["target_bucket_name"])
-
+os.unlink(filename)
