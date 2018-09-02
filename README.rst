@@ -6,6 +6,24 @@ This is a collection of scattered scripts that do not need to be packaged
 individually. Feel free to use them and update them, they are all licensed
 under the ISC-License.
 
+pycdate
+=======
+::
+
+    NAME
+        pycdate - get the modification date of a .pyc file.
+
+    SYNOPSIS
+        pycdate pycfile
+
+    DESCRIPTION
+        pycdate will read the header of the pyc file and convert the timestamp
+        into a ISO 8601 string.  For example:
+
+            $ pycdate model/user.pyc
+            2010-12-18T12:42:00
+
+
 flac2mp3
 ========
 Convert flac files to mp3s.

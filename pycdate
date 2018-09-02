@@ -1,0 +1,25 @@
+#!/usr/bin/env python
+
+"""
+Prints the date of compilation for a pyc file.
+
+Usage: pycdate pycfile
+"""
+
+import argparse
+import struct
+import datetime
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("pycfile", type=open)
+args = parser.parse_args()
+
+
+# TODO: validate this...
+magic = args.pycfile.read(4)
+
+raw_timestamp = args.pycfile.read(4)
+ulong_timestamp = struct.unpack("<L", raw_timestamp)[0]
+dt_timestamp = datetime.datetime.fromtimestamp(ulong_timestamp)
+print(dt_timestamp.isoformat())
