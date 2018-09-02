@@ -29,19 +29,21 @@ under the ISC-License.
         flac2mp3 command
 
     DESCRIPTION
-        This tool provides two commands, one to list the conversions to be done and one to execute them.  You can pipe one command into the other.  For example:
+        This tool provides two commands, one to list the conversions to be done
+        and one to execute them.  You can pipe one command into the other.  For
+        example:
 
-	        $ flac2mp3 list | flac2mp3 convert
+            $ flac2mp3 list | flac2mp3 convert
 
-	COMMANDS
+    COMMANDS
         The following commands are available:
 
-	    list      List flacs in the current folder and their respective converted
-	              mp3 equivalent, with cleaned up filename, both source and target
-	              filename are separated by a TAB character.
+        list      List flacs in the current folder and their respective converted
+                  mp3 equivalent, with cleaned up filename, both source and target
+                  filename are separated by a TAB character.
 
-	    convert   Read a list of filename pairs, the first item of each pair is a
-	              flac file, the second the target mp3 file, separated by a TAB.
+        convert   Read a list of filename pairs, the first item of each pair is a
+                  flac file, the second the target mp3 file, separated by a TAB.
 ```
 
 ## finddupes
