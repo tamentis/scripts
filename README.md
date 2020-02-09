@@ -4,6 +4,9 @@ This is a collection of scattered scripts that do not need to be packaged
 individually. Feel free to use them and update them, they are all licensed
 under the ISC-License.
 
+## fdm2twilio
+Send a Twilio notification from fdm.  See doc-string for configuration.
+
 ## pycdate
 ```
     NAME

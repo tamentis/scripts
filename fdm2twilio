@@ -1,0 +1,82 @@
+#!/usr/bin/env python
+
+"""
+Pipe selected emails to Twilio for notifications
+
+Installation
+------------
+Install a few libraries:
+
+    pip install twilio
+
+    # Optional:
+    pip install sentry-sdk
+
+Configuration
+-------------
+Create a ``~/.fdm2twilio.conf`` file with something like that::
+
+    [twilio]
+    account = ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    token = 6xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    from = +10000000000
+    to = +10000000000
+
+    # Optional
+    [sentry]
+    dsn = https://xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@sentry.io/xxxxxxx
+
+Then add a new action to your fdm.conf, hooked up to a match, for example::
+
+    action "urgent" maildir "${path}/urgent"
+    action "twilio" pipe "~/projects/scripts/fdm2twilio"
+    match urgent actions { "twilio" "inbox" }
+
+"""
+
+import configparser
+import email
+from email.utils import parseaddr
+import os.path
+import sys
+
+import sentry_sdk
+from twilio.rest import Client
+
+
+config = configparser.ConfigParser()
+config.read(os.path.expanduser("~/.fdm2twilio.conf"))
+
+
+sentry_sdk.init(config["sentry"]["dsn"])
+client = Client(config["twilio"]["account"], config["twilio"]["token"])
+
+
+def send_message(message):
+    message = client.messages.create(
+        to=config["twilio"]["to"], from_=config["twilio"]["from"], body=message
+    )
+
+
+if len(sys.argv) == 2:
+    fp = open(sys.argv[1])
+else:
+    fp = sys.stdin
+
+message = email.message_from_file(fp)
+from_ = message.get("From")
+subject = message.get("Subject")
+if from_:
+    name, address = parseaddr(from_)
+    if name:
+        from_ = name
+    else:
+        from_ = address
+
+if not from_:
+    from_ = "[Unknown Sender]"
+
+if not subject:
+    subject = "[No Subject]"
+
+send_message(f"[email] {from_}: {subject}")
