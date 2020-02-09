@@ -37,6 +37,7 @@ Then add a new action to your fdm.conf, hooked up to a match, for example::
 import configparser
 import email
 from email.utils import parseaddr
+from email.header import decode_header
 import os.path
 import sys
 
@@ -58,25 +59,31 @@ def send_message(message):
     )
 
 
+def _header_to_string(raw_header):
+    return "".join(
+        raw.decode(encoding or "utf-8")
+        for raw, encoding in decode_header(raw_header)
+    )
+
+
+def _get_sender_name(raw_header):
+    if not raw_header:
+        return "[Unknown Sender]"
+
+    name, address = parseaddr(_header_to_string(raw_header))
+    if name:
+        return name
+    else:
+        return address
+
+
 if len(sys.argv) == 2:
     fp = open(sys.argv[1])
 else:
     fp = sys.stdin
 
 message = email.message_from_file(fp)
-from_ = message.get("From")
-subject = message.get("Subject")
-if from_:
-    name, address = parseaddr(from_)
-    if name:
-        from_ = name
-    else:
-        from_ = address
-
-if not from_:
-    from_ = "[Unknown Sender]"
-
-if not subject:
-    subject = "[No Subject]"
+from_ = _get_sender_name(message.get("From"))
+subject = message.get("Subject") or "[No Subject]"
 
 send_message(f"[email] {from_}: {subject}")
