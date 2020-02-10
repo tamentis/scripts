@@ -59,10 +59,17 @@ def send_message(message):
     )
 
 
+def _decode_header_part(part):
+    raw, encoding = part
+    if type(raw) is bytes:
+        return raw.decode(encoding or "utf-8")
+    else:
+        return raw
+
+
 def _header_to_string(raw_header):
     return "".join(
-        raw.decode(encoding or "utf-8")
-        for raw, encoding in decode_header(raw_header)
+        _decode_header_part(part) for part in decode_header(raw_header)
     )
 
 
