@@ -84,6 +84,13 @@ def _get_sender_name(raw_header):
         return address
 
 
+def _get_subject(raw_header, default_subject="[No Subject]"):
+    if not raw_header:
+        return default_subject
+
+    return _header_to_string(raw_header) or default_subject
+
+
 if len(sys.argv) == 2:
     fp = open(sys.argv[1])
 else:
@@ -91,6 +98,6 @@ else:
 
 message = email.message_from_file(fp)
 from_ = _get_sender_name(message.get("From"))
-subject = message.get("Subject") or "[No Subject]"
+subject = _get_subject(message.get("Subject"))
 
 send_message(f"[email] {from_}: {subject}")
