@@ -26,6 +26,13 @@ Create a ``~/.fdm2twilio.conf`` file with something like that::
     [sentry]
     dsn = https://xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@sentry.io/xxxxxxx
 
+    # Any email containing one or more of these substrings will not generate an
+    # alert.
+    [filters]
+    subjects =
+        Google Alert -
+        Your daily project update
+
 Then add a new action to your fdm.conf, hooked up to a match, for example::
 
     action "urgent" maildir "${path}/urgent"
@@ -99,5 +106,13 @@ else:
 message = email.message_from_file(fp)
 from_ = _get_sender_name(message.get("From"))
 subject = _get_subject(message.get("Subject"))
+
+filtered_subjects = []
+if "filters" in config and "subjects" in config["filters"]:
+    filtered_subjects += config["filters"]["subjects"].strip().split()
+
+for filtered_subject in filtered_subjects:
+    if filtered_subject in subject:
+        sys.exit(0)
 
 send_message(f"[email] {from_}: {subject}")
