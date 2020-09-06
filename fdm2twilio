@@ -1,0 +1,118 @@
+#!/usr/bin/env python
+
+"""
+Pipe selected emails to Twilio for notifications
+
+Installation
+------------
+Install a few libraries:
+
+    pip install twilio
+
+    # Optional:
+    pip install sentry-sdk
+
+Configuration
+-------------
+Create a ``~/.fdm2twilio.conf`` file with something like that::
+
+    [twilio]
+    account = ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    token = 6xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    from = +10000000000
+    to = +10000000000
+
+    # Optional
+    [sentry]
+    dsn = https://xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@sentry.io/xxxxxxx
+
+    # Any email containing one or more of these substrings will not generate an
+    # alert.
+    [filters]
+    subjects =
+        Google Alert -
+        Your daily project update
+
+Then add a new action to your fdm.conf, hooked up to a match, for example::
+
+    action "urgent" maildir "${path}/urgent"
+    action "twilio" pipe "~/projects/scripts/fdm2twilio"
+    match urgent actions { "twilio" "inbox" }
+
+"""
+
+import configparser
+import email
+from email.utils import parseaddr
+from email.header import decode_header
+import os.path
+import sys
+
+import sentry_sdk
+from twilio.rest import Client
+
+
+config = configparser.ConfigParser()
+config.read(os.path.expanduser("~/.fdm2twilio.conf"))
+
+
+sentry_sdk.init(config["sentry"]["dsn"])
+client = Client(config["twilio"]["account"], config["twilio"]["token"])
+
+
+def send_message(message):
+    message = client.messages.create(
+        to=config["twilio"]["to"], from_=config["twilio"]["from"], body=message
+    )
+
+
+def _decode_header_part(part):
+    raw, encoding = part
+    if type(raw) is bytes:
+        return raw.decode(encoding or "utf-8")
+    else:
+        return raw
+
+
+def _header_to_string(raw_header):
+    return "".join(
+        _decode_header_part(part) for part in decode_header(raw_header)
+    )
+
+
+def _get_sender_name(raw_header):
+    if not raw_header:
+        return "[Unknown Sender]"
+
+    name, address = parseaddr(_header_to_string(raw_header))
+    if name:
+        return name
+    else:
+        return address
+
+
+def _get_subject(raw_header, default_subject="[No Subject]"):
+    if not raw_header:
+        return default_subject
+
+    return _header_to_string(raw_header) or default_subject
+
+
+if len(sys.argv) == 2:
+    fp = open(sys.argv[1])
+else:
+    fp = sys.stdin
+
+message = email.message_from_file(fp)
+from_ = _get_sender_name(message.get("From"))
+subject = _get_subject(message.get("Subject"))
+
+filtered_subjects = []
+if "filters" in config and "subjects" in config["filters"]:
+    filtered_subjects += config["filters"]["subjects"].strip().split()
+
+for filtered_subject in filtered_subjects:
+    if filtered_subject in subject:
+        sys.exit(0)
+
+send_message(f"[email] {from_}: {subject}")
