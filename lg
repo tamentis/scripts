@@ -1,0 +1,44 @@
+#!/usr/bin/env python3
+
+import os
+import os.path
+import subprocess
+import sys
+
+result = subprocess.run(["tmux", "capture-pane", "-p"], capture_output=True)
+lines = result.stdout.splitlines()
+
+extracted_filenames = []
+
+for line in lines[::-1]:
+    if not line:
+        continue
+
+    line = line.decode("utf-8")
+
+    if ":" in line:
+        filename, _ = line.split(":", maxsplit=1)
+        if os.path.exists(filename):
+            if filename not in extracted_filenames:
+                extracted_filenames.append(filename)
+            continue
+
+    if "grep" in line:
+        break
+
+# Inverse the list since we accumulated result from the bottom.
+extracted_filenames = extracted_filenames[::-1]
+
+selected_filenames = []
+
+if len(sys.argv) == 1:
+    selected_filenames = extracted_filenames
+elif ":" in sys.argv[1]:
+    start_idx, end_idx = [int(i) for i in sys.argv[1].split(":", maxsplit=1)]
+    selected_filenames = extracted_filenames[start_idx:end_idx]
+else:
+    idx = int(sys.argv[1])
+    selected_filenames = [extracted_filenames[idx]]
+
+for filename in selected_filenames:
+    print(filename)
