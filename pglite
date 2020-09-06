@@ -1,0 +1,75 @@
+#!/bin/sh
+#
+# Create and start a fresh new cluster in the given directory.
+#
+
+# $1 - famous last words
+die() {
+	echo "error: $*"
+	exit 1
+}
+
+# Return the absolute version of path, unless already absolute.
+# $1 - path to check
+mkabs() {
+	p="$1"
+	if [ "$p" = "${p##/}" ]; then
+		echo "`pwd`/$p"
+	else
+		echo "$p"
+	fi
+}
+
+pg_bindir=`pg_config --bindir` || die "pg_config failed"
+export PATH="$PATH:$pg_bindir"
+
+if [ -z "$1" ]; then
+	echo "usage: `basename $0` path"
+	exit 1
+fi
+
+curdir=`pwd`
+dbpath=`mkabs "$1"`
+port="$2"
+
+if [ ! -d "$dbpath" ]; then
+	tmplog=`mktemp -t pglitelog.XXXXXXXXXX`
+	initdb -E UTF-8 "$dbpath" \
+		1>>"$tmplog" \
+		2>>"$tmplog" \
+		|| die "failed to run initdb"
+	mv "$tmplog" "$dbpath/log"
+fi
+
+# In theory the cluster should be shutdown when we exit
+if [ ! -f "$dbpath/postmaster.pid" ]; then
+	# The port definition is only used to ensure the naming of the lock and Unix
+	# domain socket is consistent (as psql expects it).
+	postgres \
+		-c listen_addresses='' \
+		-c port=5432 \
+		-k "$dbpath" \
+		-D "$dbpath" \
+		1>>"$dbpath/log" \
+		2>>"$dbpath/log" \
+		&
+	pid=$!
+	echo "started with PID $pid"
+else
+	pid=`head -n 1 "$dbpath/postmaster.pid"`
+	echo "already running with PID $pid"
+fi
+
+retries=0
+max_retries=15
+while ! psql -h "$dbpath" -c "select 1" postgres 1>/dev/null 2>/dev/null; do
+	if [ "$retries" -ge "$max_retries" ]; then
+		die "can't connect to the database"
+	fi
+	sleep 1
+	retries=$((retries + 1))
+done
+
+psql -h "$dbpath" postgres
+
+kill $pid
