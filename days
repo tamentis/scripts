@@ -1,0 +1,89 @@
+#!/usr/bin/env python3
+#
+# NAME
+#      days - count the days since a given date
+#
+# SYNOPSIS
+#      days NAME/DATE [--forever] [--zero-start]      
+#
+# CONFIG
+#      A few days are pre-loaded to make sure you're able to start counting
+#      important dates such as 'usa' which represent independence day of USA.
+#      But you'll probably want to track your own dates. In order to do that,
+#      just create a ~/.days/config.json file with the dates you want to track.
+#      Here is an example file:
+#
+#      {
+#          "first-day": "0001-01-01",
+#          "usa": "1776-07-04",
+#          "ramp": "2019-03-18",
+#      }
+#
+#      Some people want to count their days with "day 0" being the first day,
+#      we decided the birthday of anything is called "day 1". If you want to
+#      change that, use the --zero-start option.
+#
+
+from argparse import ArgumentParser
+from datetime import date, timedelta
+import json
+from pathlib import Path
+import sys
+
+
+BASE_CONFIG = {
+    "first-day": date.fromisoformat("0001-01-01"),
+    "usa": date.fromisoformat("1776-07-04"),
+    "ramp": date.fromisoformat("2019-03-18"),
+}
+
+
+def load_config():
+    config = BASE_CONFIG.copy()
+
+    config_path = Path.home() / ".days" / "config.json"
+    if config_path.is_file():
+        with config_path.open("r") as f:
+            raw_config = json.load(f)
+            for key in raw_config:
+                config[key] = date.fromisoformat(raw_config[key])
+
+    return config
+
+
+def main():
+    parser = ArgumentParser()
+    parser.add_argument("name")
+    parser.add_argument(
+        "--forever",
+        action="store_true",
+        help="Don't stop at today, keep going until ^C",
+    )
+    parser.add_argument(
+        "--zero-start", action="store_true", help="Start counting from 0 instead of 1"
+    )
+
+    args = parser.parse_args()
+
+    config = load_config()
+
+    if args.name not in config:
+        valid_dates = ", ".join(config.keys())
+        print(f"error: unknown date (valid: {valid_dates})")
+        sys.exit(1)
+
+    start_day = config[args.name]
+    day = config[args.name]
+
+    offset = 0 if args.zero_start else 1
+
+    while day <= date.today() or args.forever:
+        delta = day - start_day
+
+        print(f"{day.isoformat()}: Day {delta.days + offset}")
+
+        day = day + timedelta(days=1)
+
+
+if __name__ == "__main__":
+    main()
