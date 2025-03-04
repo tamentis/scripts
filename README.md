@@ -64,6 +64,23 @@ Send a Twilio notification from fdm.  See doc-string for configuration.
         the md5 checksum will be used for comparison instead of the filename.
 ```
 
+## sft
+```
+    NAME
+        sft - set file title
+
+    SYNOPSIS
+
+        sft filename
+ 
+    DESCRIPTION
+
+        The macOS Terminal.app has a feature allowing you to display a folder
+        or file in the title bar.  This script allows you to set it to any file
+        you want, then easily drag and drop from the title bar to another
+        window (e.g. a browser upload form).
+```
+
 ## mplayer-remote.py
 Control a movie remotely. This little script spawns a web server on the machine
 with mplayer and gives a few controls to any machine connecting to this server.

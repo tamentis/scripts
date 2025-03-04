@@ -1,0 +1,24 @@
+#!/bin/sh
+#
+#    NAME
+#        sft - set file title
+#
+#    SYNOPSIS
+#
+#        sft filename
+# 
+#    DESCRIPTION
+#
+#        The macOS Terminal.app has a feature allowing you to display a folder
+#        or file in the title bar.  This script allows you to set it to any file
+#        you want, then easily drag and drop from the title bar to another
+#        window (e.g. a browser upload form).
+#
+
+if [ -z "$1" ] || [ -n "$2" ]; then
+	echo "usage: sft filename"
+	exit 1
+fi
+
+filepath=`realpath "$1" | sed "s|$HOME|~|"`
+echo "\033]0;${filepath}\007"
